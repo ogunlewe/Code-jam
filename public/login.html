@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login- Code Jam</title>
+    <title>Login - CODE JAM</title>
+    <link rel="stylesheet" href="login-style.css">
 </head>
 <body>
-    <div class="container" ></div>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="login-form">
+            <input type="text" id="login-username" placeholder="Username" required><br>
+            <input type="password" id="login-password" placeholder="Password" required><br>
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+    </div>
+<script src="login.js"></script>
 </body>
 </html>

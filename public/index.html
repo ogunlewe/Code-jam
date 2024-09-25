@@ -13,6 +13,19 @@
   <body>
     <div class="container">
       <div class="sidebar">
+        <button id="logoutButton">Logout</button>
+
+        <script>
+          document
+            .getElementById("logoutButton")
+            .addEventListener("click", function () {
+              // Clear login data and redirect to login page
+              localStorage.removeItem("isLoggedIn");
+              localStorage.removeItem("username");
+              window.location.href = "login.html";
+            });
+        </script>
+
         <h3>File Explorer</h3>
         <ul id="file-list"></ul>
 
@@ -48,33 +61,34 @@
         </div>
       </div>
 
-
       <!---The White Board Section-->
-       <!-- Brainstorm Area -->
-    <div class="brainstorm-area" id="brainstorm-area" style="display: none;">
-      <h3>Brainstorm Area</h3>
-      <div class="toolbar">
-        <input type="color" id="colorPicker" />
-        <input type="range" id="brushSize" min="1" max="10" />
-        <button id="drawTool">Draw</button>
-        <button id="eraserTool">Eraser</button>
-        <button id="rectangleTool">Rectangle</button>
-        <button id="textTool">Text</button>
-        <button id="addStickyNoteButton">Add Sticky Note</button>
-        <input type="file" id="fileUpload" accept=".jpg,.jpeg,.png,.pdf" multiple />
-        <button id="clearButton">Clear Board</button>
-        <button id="deleteButton" disabled>Delete</button>
+      <!-- Brainstorm Area -->
+      <div class="brainstorm-area" id="brainstorm-area" style="display: none">
+        <h3>Brainstorm Area</h3>
+        <div class="toolbar">
+          <input type="color" id="colorPicker" />
+          <input type="range" id="brushSize" min="1" max="10" />
+          <button id="drawTool">Draw</button>
+          <button id="eraserTool">Eraser</button>
+          <button id="rectangleTool">Rectangle</button>
+          <button id="textTool">Text</button>
+          <button id="addStickyNoteButton">Add Sticky Note</button>
+          <input
+            type="file"
+            id="fileUpload"
+            accept=".jpg,.jpeg,.png,.pdf"
+            multiple
+          />
+          <button id="clearButton">Clear Board</button>
+          <button id="deleteButton" disabled>Delete</button>
+        </div>
+        <canvas id="whiteboard" width="800" height="600"></canvas>
+        <div id="stickyNotesContainer"></div>
+        <button type="button" id="back-to-main">Back to Main Area</button>
       </div>
-      <canvas id="whiteboard" width="800" height="600"></canvas>
-      <div id="stickyNotesContainer"></div>
-      <button type="button" id="back-to-main">Back to Main Area</button>
-    </div>
-    <script src="whiteboard.js"></script>
+      <script src="whiteboard.js"></script>
 
-
-
-
-<!---Run Editor Section -->
+      <!---Run Editor Section -->
       <div class="editor-container">
         <div id="editor"></div>
         <button onclick="runCode()">Run Code</button>
@@ -90,6 +104,29 @@
 
     <script src="https://unpkg.com/monaco-editor@0.23.0/min/vs/loader.js"></script>
     <script src="editorFunctionality.js"></script>
+    <script>
+      // Function to get cookie value by name
+      function getCookie(name) {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Check if the user is logged in using the loggedIn cookie
+        const isLoggedIn = getCookie('loggedIn');
+
+        // Log the cookie value for debugging
+        console.log('LoggedIn Cookie Value:', isLoggedIn);
+
+        // If not logged in, redirect to login page
+        if (!isLoggedIn || isLoggedIn !== 'true') {
+          alert('You must be logged in to access this page.');
+          window.location.href = 'login.html'; // Redirect to login page
+        } else {
+          console.log('User is logged in');
+        }
+    </script>
+    
   </body>
 </html>
 \
