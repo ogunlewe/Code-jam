@@ -8,7 +8,7 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
@@ -35,6 +35,9 @@
           <button onclick="createFile()">Create</button>
         </div>
 
+        <!---Button to the brainstorm Area-->
+        <button type="button" id="start-draw">Go to Brainstorm Area</button>
+
         <div class="theme-selector">
           <h4>Theme</h4>
           <select id="themeSelector">
@@ -45,6 +48,33 @@
         </div>
       </div>
 
+
+      <!---The White Board Section-->
+       <!-- Brainstorm Area -->
+    <div class="brainstorm-area" id="brainstorm-area" style="display: none;">
+      <h3>Brainstorm Area</h3>
+      <div class="toolbar">
+        <input type="color" id="colorPicker" />
+        <input type="range" id="brushSize" min="1" max="10" />
+        <button id="drawTool">Draw</button>
+        <button id="eraserTool">Eraser</button>
+        <button id="rectangleTool">Rectangle</button>
+        <button id="textTool">Text</button>
+        <button id="addStickyNoteButton">Add Sticky Note</button>
+        <input type="file" id="fileUpload" accept=".jpg,.jpeg,.png,.pdf" multiple />
+        <button id="clearButton">Clear Board</button>
+        <button id="deleteButton" disabled>Delete</button>
+      </div>
+      <canvas id="whiteboard" width="800" height="600"></canvas>
+      <div id="stickyNotesContainer"></div>
+      <button type="button" id="back-to-main">Back to Main Area</button>
+    </div>
+    <script src="whiteboard.js"></script>
+
+
+
+
+<!---Run Editor Section -->
       <div class="editor-container">
         <div id="editor"></div>
         <button onclick="runCode()">Run Code</button>
