@@ -1,68 +1,130 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  }
-  
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-  }
-  
-  .login-form {
-    background: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    text-align: center;
-  }
-  
-  h2 {
-    margin-bottom: 20px;
-  }
-  
-  .input-field {
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  
-  input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-  button {
-    width: 100%;
-    padding: 10px;
-    background-color: #4facfe;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #00c3ff;
-  }
-  
-  .error-message {
-    color: red;
-    margin-top: 10px;
-  }
-  
+/* Apply a background gradient to the whole page */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Container for the form with a glowing border */
+.login-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+/* Glow effect for the title */
+.glow {
+  font-size: 36px;
+  color: white;
+  text-align: center;
+  margin-bottom: 40px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+               0 0 20px rgba(255, 255, 255, 0.6),
+               0 0 30px rgba(255, 255, 255, 0.4),
+               0 0 40px #ff0099,
+               0 0 70px #ff0099,
+               0 0 80px #ff0099,
+               0 0 100px #ff0099;
+}
+
+/* Form styling */
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Inputs with sleek look and glowing focus */
+input[type="text"], input[type="password"] {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  outline: none;
+  padding: 15px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #fff;
+  border-radius: 10px;
+  width: 100%;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+
+input[type="text"]::placeholder, input[type="password"]::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px #ff0099, 0 0 20px #ff0099;
+}
+
+/* Button with gradient, glowing hover effect */
+button {
+  background: linear-gradient(135deg, #ff0099, #493240);
+  color: white;
+  font-size: 18px;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+button:hover {
+  box-shadow: 0 0 20px #ff0099, 0 0 30px #ff0099, 0 0 40px #ff0099;
+  background: linear-gradient(135deg, #ff0099, #6b075e);
+}
+
+/* Subtle fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.login-container {
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Signup text styling */
+.signup-text {
+  margin-top: 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.signup-link {
+  color: #ff0099;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.signup-link:hover {
+  color: #ffffff;
+  text-shadow: 0 0 5px #ff0099, 0 0 10px #ff0099;
+}

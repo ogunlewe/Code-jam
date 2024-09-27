@@ -1,8 +1,12 @@
 // login.js
 
+// Attach event listener to form submit
 document.getElementById('login-form').addEventListener('submit', function (event) {
-    event.preventDefault();
-    
+    event.preventDefault(); // Prevent form from refreshing the page
+  
+    // Log to check if the form is being submitted
+    console.log('Login form submitted');
+  
     const usernameInput = document.getElementById('username').value;
     const passwordInput = document.getElementById('password').value;
   
@@ -10,11 +14,22 @@ document.getElementById('login-form').addEventListener('submit', function (event
     const storedUsername = getCookie('username');
     const storedPassword = getCookie('password');
   
+    // Log user inputs and cookies for debugging
+    console.log('Entered Username:', usernameInput);
+    console.log('Entered Password:', passwordInput);
+    console.log('Stored Username:', storedUsername);
+    console.log('Stored Password:', storedPassword);
+  
     // Check if credentials match
     if (usernameInput === storedUsername && passwordInput === storedPassword) {
-      // Set a login session cookie with expiration and path
+      // Set a login session cookie with an expiration of 1 day and path for all pages
       document.cookie = `loggedIn=true; path=/; max-age=86400`; // 1 day expiration
-      window.location.href = 'index.html'; // Redirect to index page
+  
+      // Log to confirm cookie has been set
+      console.log('LoggedIn cookie set:', document.cookie);
+  
+      // Redirect to index page
+      window.location.href = 'index.html'; 
     } else {
       alert('Incorrect username or password.');
     }
