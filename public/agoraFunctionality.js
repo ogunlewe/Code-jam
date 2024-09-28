@@ -1,3 +1,5 @@
+const AgoraRTC = require('agora-rtc-sdk');
+
 // Agora app ID (replace with your own)
 const appId = "YOUR_ACTUAL_AGORA_APP_ID";
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
@@ -26,11 +28,26 @@ async function startScreenSharing() {
 
 async function joinChannel() {
   if (!joinedChannel) {
-    const uid = await client.join(appId, "main", null, null);
-    console.log("Joined channel:", uid);
-    joinedChannel = true;
-    client.on("user-published", handleUserPublished);
-    client.on("user-unpublished", handleUserUnpublished);
+    try {
+      const response = await fetch('/generate-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ channelName: 'main' }),
+      });
+      const data = await response.json();
+      if (!data.token) {
+        throw new Error('Failed to get token');
+      }
+      const uid = await client.join(appId, 'main', data.token, null);
+      console.log("Joined channel:", uid);
+      joinedChannel = true;
+      client.on("user-published", handleUserPublished);
+      client.on("user-unpublished", handleUserUnpublished);
+    } catch (error) {
+      console.error("Error joining channel:", error);
+    }
   }
 }
 

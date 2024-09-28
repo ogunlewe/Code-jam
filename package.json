@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@zoom/meetingsdk": "^3.8.10",
+    "agora-rtc-sdk": "^3.6.11",
     "body-parser": "^1.20.3",
     "child-process": "^1.0.2",
     "express": "^4.21.0",
