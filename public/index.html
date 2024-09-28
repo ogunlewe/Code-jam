@@ -91,6 +91,17 @@
       <!---Run Editor Section -->
       <div class="editor-container">
         <div id="editor"></div>
+
+        <!-- Button to toggle Live Preview -->
+        <button onclick="toggleLivePreview()">Toggle Live Preview</button>
+        <p id="livePreviewStatus">Live Preview OFF</p>
+
+        <!-- Live Preview iframe -->
+        <iframe
+          id="live-preview"
+          style="width: 100%; height: 400px; border: 1px solid #ccc"
+        ></iframe>
+
         <button onclick="runCode()">Run Code</button>
         <div class="terminal" id="terminal">
           <p>Terminal Output:</p>
@@ -107,26 +118,24 @@
     <script>
       // Function to get cookie value by name
       function getCookie(name) {
-          const value = `; ${document.cookie}`;
-          const parts = value.split(`; ${name}=`);
-          if (parts.length === 2) return parts.pop().split(';').shift();
-        }
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
 
-        // Check if the user is logged in using the loggedIn cookie
-        const isLoggedIn = getCookie('loggedIn');
+      // Check if the user is logged in using the loggedIn cookie
+      const isLoggedIn = getCookie("loggedIn");
 
-        // Log the cookie value for debugging
-        console.log('LoggedIn Cookie Value:', isLoggedIn);
+      // Log the cookie value for debugging
+      console.log("LoggedIn Cookie Value:", isLoggedIn);
 
-        // If not logged in, redirect to login page
-        if (!isLoggedIn || isLoggedIn !== 'true') {
-          alert('You must be logged in to access this page.');
-          window.location.href = 'login.html'; // Redirect to login page
-        } else {
-          console.log('User is logged in');
-        }
+      // If not logged in, redirect to login page
+      if (!isLoggedIn || isLoggedIn !== "true") {
+        alert("You must be logged in to access this page.");
+        window.location.href = "login.html"; // Redirect to login page
+      } else {
+        console.log("User is logged in");
+      }
     </script>
-    
   </body>
 </html>
-\
