@@ -227,6 +227,22 @@ function toggleLivePreview() {
   }
 }
 
+// Event listener for 'Go to Live Preview  Area' button
+document.getElementById("go-to-live-preview").addEventListener("click", function () {
+  // Hide the main editor container and show the Live Preview Area
+  document.querySelector(".editor-container").style.display = "none";
+  document.querySelector(".sidebar").style.display = "none";
+  document.getElementById("live-preview-area").style.display = "block";
+});
+
+// Event listener for 'Back to Main Area' button
+document.getElementById("back-to-main-preview").addEventListener("click", function () {
+  // Show the main editor container and hide the Live Preview Area
+  document.querySelector(".editor-container").style.display = "block";
+  document.querySelector(".sidebar").style.display = "block";
+  document.getElementById("live-preview-area").style.display = "none";
+});
+
 // Update the Live Preview iframe with the latest code
 function updateLivePreview() {
   const code = editor.getValue();

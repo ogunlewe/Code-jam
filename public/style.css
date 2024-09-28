@@ -10,6 +10,7 @@
       "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
   }
 
   .container {
@@ -33,7 +34,7 @@
 
   #editor {
     flex-grow: 1;
-    height: 500px;
+    height: 670px;
   }
 
   .status-bar {
@@ -48,9 +49,10 @@
   .terminal {
     background-color: #1e1e1e;
     color: white;
-    height: 200px;
+    height: 20vh;
     padding: 10px;
     overflow-y: auto;
+    
   }
 
   .theme-selector,
