@@ -14,9 +14,14 @@
     <div class="container">
       <div class="sidebar">
         <button id="logoutButton">Logout</button>
-        <button id="startVideoCall">Start Video Call</button>
-        <button id="startAudioCall">Start Audio Call</button>
-        <button id="startScreenSharing">Start Screen Sharing</button>
+        <!-- Audio Call Buttons -->
+<button id="join-audio">Join Audio Call</button>
+<button id="leave-audio" style="display:none;">Leave Audio Call</button>
+<button id="mute-audio" style="display:none;">Mute Audio</button>
+<button id="unmute-audio" style="display:none;">Unmute Audio</button>
+
+<div id="remote-audio"></div>
+
         <div id="remoteStreams"></div>
 
         <script>

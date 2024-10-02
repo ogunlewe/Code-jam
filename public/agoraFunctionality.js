@@ -1,81 +1,74 @@
-const AgoraRTC = require('agora-rtc-sdk');
+let client;
+let localAudioTrack;
+let isMuted = false;
 
-// Agora app ID (replace with your own)
-const appId = "YOUR_ACTUAL_AGORA_APP_ID";
-const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+document.getElementById('join-audio').addEventListener('click', async () => {
+    // Initialize Agora client
+    client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 
-let localAudioTrack, localVideoTrack, screenTrack;
-let joinedChannel = false;
+    const appId = '4547ccb088dd4df7a0cf10e60f29c335'; // Replace with your Agora App ID
+    const channel = 'test'; // Replace with your channel name
+    const token = null; // Use token if your project is secured
 
-async function startVideoCall() {
-  await joinChannel();
-  localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  localVideoTrack = await AgoraRTC.createCameraVideoTrack();
-  await client.publish([localAudioTrack, localVideoTrack]);
-}
-
-async function startAudioCall() {
-  await joinChannel();
-  localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  await client.publish([localAudioTrack]);
-}
-
-async function startScreenSharing() {
-  await joinChannel();
-  screenTrack = await AgoraRTC.createScreenVideoTrack();
-  await client.publish([screenTrack]);
-}
-
-async function joinChannel() {
-  if (!joinedChannel) {
     try {
-      const response = await fetch('/generate-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ channelName: 'main' }),
-      });
-      const data = await response.json();
-      if (!data.token) {
-        throw new Error('Failed to get token');
-      }
-      const uid = await client.join(appId, 'main', data.token, null);
-      console.log("Joined channel:", uid);
-      joinedChannel = true;
-      client.on("user-published", handleUserPublished);
-      client.on("user-unpublished", handleUserUnpublished);
+        // Join the channel
+        await client.join(appId, channel, token, null);
+
+        // Create local audio track
+        localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+
+        // Publish the local audio track to the Agora channel
+        await client.publish([localAudioTrack]);
+
+        console.log('Audio call started');
+
+        // Update UI
+        document.getElementById('join-audio').style.display = 'none';
+        document.getElementById('leave-audio').style.display = 'inline';
+        document.getElementById('mute-audio').style.display = 'inline';
     } catch (error) {
-      console.error("Error joining channel:", error);
+        console.error('Failed to join audio call:', error);
     }
-  }
-}
 
-async function handleUserPublished(user, mediaType) {
-  await client.subscribe(user, mediaType);
-  if (mediaType === "video") {
-    const remoteVideoTrack = user.videoTrack;
-    const playerContainer = document.createElement("div");
-    playerContainer.id = user.uid.toString();
-    playerContainer.style.width = "640px";
-    playerContainer.style.height = "480px";
-    document.getElementById("remoteStreams").append(playerContainer);
-    remoteVideoTrack.play(playerContainer);
-  }
-  if (mediaType === "audio") {
-    const remoteAudioTrack = user.audioTrack;
-    remoteAudioTrack.play();
-  }
-}
+    // Subscribe to remote users
+    client.on('user-published', async (user, mediaType) => {
+        await client.subscribe(user, mediaType);
+        if (mediaType === 'audio') {
+            const remoteAudioTrack = user.audioTrack;
+            remoteAudioTrack.play();
+            console.log('Remote audio playing');
+        }
+    });
+});
 
-function handleUserUnpublished(user) {
-  const playerContainer = document.getElementById(user.uid.toString());
-  if (playerContainer) {
-    playerContainer.remove();
-  }
-}
+// Leave the audio call
+document.getElementById('leave-audio').addEventListener('click', async () => {
+    if (client) {
+        await client.leave();
+        localAudioTrack.close();
 
-// Event listeners
-document.getElementById("startVideoCall").addEventListener("click", startVideoCall);
-document.getElementById("startAudioCall").addEventListener("click", startAudioCall);
-document.getElementById("startScreenSharing").addEventListener("click", startScreenSharing);
+        console.log('Audio call left');
+        document.getElementById('join-audio').style.display = 'inline';
+        document.getElementById('leave-audio').style.display = 'none';
+        document.getElementById('mute-audio').style.display = 'none';
+        document.getElementById('unmute-audio').style.display = 'none';
+    }
+});
+
+// Mute audio
+document.getElementById('mute-audio').addEventListener('click', () => {
+    localAudioTrack.setMuted(true);
+    isMuted = true;
+    document.getElementById('mute-audio').style.display = 'none';
+    document.getElementById('unmute-audio').style.display = 'inline';
+    console.log('Audio muted');
+});
+
+// Unmute audio
+document.getElementById('unmute-audio').addEventListener('click', () => {
+    localAudioTrack.setMuted(false);
+    isMuted = false;
+    document.getElementById('mute-audio').style.display = 'inline';
+    document.getElementById('unmute-audio').style.display = 'none';
+    console.log('Audio unmuted');
+});

@@ -1,7 +1,12 @@
 const express = require('express');
 const { exec } = require('child_process');
 const path = require('path');
+const http = require('http');
+const socketIO = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,24 +35,26 @@ app.post('/execute', (req, res) => {
   });
 });
 
-// Endpoint to execute terminal commands
-app.post('/command', (req, res) => {
-  const { command } = req.body;
+// Socket.IO real-time collaboration setup
+io.on('connection', (socket) => {
+  console.log('A user connected');
 
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      return res.json({ output: `Error: ${error.message}` });
-    }
-    if (stderr) {
-      return res.json({ output: `Stderr: ${stderr}` });
-    }
-    res.json({ output: stdout });
+  // Broadcast the changes made by one user to others
+  socket.on('code-change', (data) => {
+    socket.broadcast.emit('code-update', data);
+  });
+
+  // Broadcast cursor position to others
+  socket.on('cursor-change', (cursorPosition) => {
+    socket.broadcast.emit('cursor-update', cursorPosition);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
   });
 });
 
-
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
