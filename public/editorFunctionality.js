@@ -1,5 +1,4 @@
 let editor;
-let socket = io();  // Initialize Socket.IO connection
 let files = {};
 let currentFile = null;
 let breakpoints = [];
@@ -19,46 +18,35 @@ require(["vs/editor/editor.main"], function () {
     automaticLayout: true,
   });
 
-  // Broadcast code changes to the server
-  editor.onDidChangeModelContent(function () {
-    const code = editor.getValue();
-    socket.emit('code-change', { code });
+  // Add auto-completion
+  monaco.languages.registerCompletionItemProvider("javascript", {
+    provideCompletionItems: () => {
+      return {
+        suggestions: [
+          {
+            label: "console.log",
+            kind: monaco.languages.CompletionItemKind.Function,
+            insertText: "console.log(${1:message});",
+            insertTextRules:
+              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          },
+          {
+            label: "for loop",
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            insertText:
+              "for (let ${1:i} = 0; ${1:i} < ${2:10}; ${1:i}++) {\n\t$0\n}",
+          },
+          {
+            label: "if statement",
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            insertText: "if (${1:condition}) {\n\t$0\n}",
+          },
+        ],
+      };
+    },
   });
 
-  // Broadcast cursor position to the server
-  editor.onDidChangeCursorPosition(function () {
-    const position = editor.getPosition();
-    socket.emit('cursor-change', position);
-  });
-
-  // Receive real-time code updates from other users
-  socket.on('code-update', (data) => {
-    const currentCode = editor.getValue();
-    if (currentCode !== data.code) {
-      editor.setValue(data.code);
-    }
-  });
-
-  // Receive real-time cursor updates from other users
-  socket.on('cursor-update', (position) => {
-    // Display the other user's cursor in some way, such as a marker
-    editor.deltaDecorations([], [
-      {
-        range: new monaco.Range(
-          position.lineNumber,
-          position.column,
-          position.lineNumber,
-          position.column
-        ),
-        options: {
-          className: 'remote-user-cursor',  // Add a CSS class to show the cursor
-          stickiness: 1,
-        },
-      },
-    ]);
-  });
-
-  // Cursor position tracking for display
+  // Cursor position tracking
   editor.onDidChangeCursorPosition(function () {
     var position = editor.getPosition();
     document.getElementById(
@@ -153,14 +141,6 @@ function openFile(fileName) {
   ).innerText = `${fileName} is open`;
 }
 
-// Save the file
-function saveFile(fileName) {
-  const file = files[fileName];
-  file.content = editor.getValue();
-  document.getElementById("project-status").innerText = `${fileName} saved`;
-}
-
-// Run code in the terminal
 async function runCode() {
   const code = editor.getValue();
   const language = document.getElementById("languageSelector").value;
@@ -185,6 +165,13 @@ async function runCode() {
   } catch (error) {
     terminal.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
   }
+}
+
+// Save the file
+function saveFile(fileName) {
+  const file = files[fileName];
+  file.content = editor.getValue();
+  document.getElementById("project-status").innerText = `${fileName} saved`;
 }
 
 // Start debugging session
@@ -240,8 +227,9 @@ function toggleLivePreview() {
   }
 }
 
-// Event listener for 'Go to Live Preview Area' button
+// Event listener for 'Go to Live Preview  Area' button
 document.getElementById("go-to-live-preview").addEventListener("click", function () {
+  // Hide the main editor container and show the Live Preview Area
   document.querySelector(".editor-container").style.display = "none";
   document.querySelector(".sidebar").style.display = "none";
   document.getElementById("live-preview-area").style.display = "block";
@@ -249,6 +237,7 @@ document.getElementById("go-to-live-preview").addEventListener("click", function
 
 // Event listener for 'Back to Main Area' button
 document.getElementById("back-to-main-preview").addEventListener("click", function () {
+  // Show the main editor container and hide the Live Preview Area
   document.querySelector(".editor-container").style.display = "block";
   document.querySelector(".sidebar").style.display = "block";
   document.getElementById("live-preview-area").style.display = "none";
