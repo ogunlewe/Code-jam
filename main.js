@@ -2,9 +2,26 @@ const express = require('express');
 const { exec } = require('child_process');
 const path = require('path');
 const app = express();
+const axios = require('axios');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.post('/generate-room', async (req, res) => {
+  try {
+    const { data } = await axios.post('https://api.agora.io/v1/apps/{your-app-id}/rooms', {
+      name: 'your-room-name',
+      uid: 'your-unique-id',
+    });
+    const roomUUID = data.roomUUID;
+    const token = data.token;
+    
+    res.json({ roomUUID, token });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create room' });
+  }
+});
 
 // Endpoint to execute code
 app.post('/execute', (req, res) => {
