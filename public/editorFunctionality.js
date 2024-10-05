@@ -257,7 +257,7 @@ function toggleTerminal() {
 
 // Function to toggle split view between horizontal and vertical
 function toggleSplitView() {
-  const container = document.getElementById('editor-terminal-container');
+  const container = document.getElementById('editor-container');
   if (container.classList.contains('horizontal-split')) {
     container.classList.remove('horizontal-split');
   } else {

@@ -26,31 +26,6 @@
     overflow-y: auto;
   }
 
-  /* Initial vertical split layout */
-.editor-terminal-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Split 50-50 in vertical layout */
-  height: 100vh;
-}
-
-#editor, .terminal {
-  width: 100%;
-  height: 100%;
-}
-
-/* Horizontal split layout */
-.horizontal-split .editor-terminal-container {
-  grid-template-columns: 1fr;
-  grid-template-rows: 3fr 1fr; /* Editor takes 3/4 and terminal takes 1/4 of the height */
-}
-
-.horizontal-split #editor {
-  height: 75%;
-}
-
-.horizontal-split .terminal {
-  height: 25%;
-}
 
 
   .editor-container {
