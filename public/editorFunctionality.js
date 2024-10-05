@@ -243,6 +243,38 @@ document.getElementById("back-to-main-preview").addEventListener("click", functi
   document.getElementById("live-preview-area").style.display = "none";
 });
 
+// Function to toggle the terminal visibility
+function toggleTerminal() {
+  const terminal = document.getElementById("terminal");
+  if (terminal.style.display === "none") {
+    terminal.style.display = "block";
+  } else {
+    terminal.style.display = "none";
+  }
+}
+
+
+
+// Function to toggle split view between horizontal and vertical
+function toggleSplitView() {
+  const container = document.getElementById('editor-terminal-container');
+  if (container.classList.contains('horizontal-split')) {
+    container.classList.remove('horizontal-split');
+  } else {
+    container.classList.add('horizontal-split');
+  }
+}
+
+// Function to toggle the terminal visibility
+function toggleTerminal() {
+  const terminal = document.getElementById("terminal");
+  if (terminal.style.display === "none") {
+    terminal.style.display = "block";
+  } else {
+    terminal.style.display = "none";
+  }
+}
+
 // Update the Live Preview iframe with the latest code
 function updateLivePreview() {
   const code = editor.getValue();
