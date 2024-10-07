@@ -129,13 +129,13 @@ function createFile() {
 function getFileIcon(language) {
   switch (language) {
     case "javascript":
-      return "js";
+      return "<box-icon name='javascript' color='yellow' type='logo' ></box-icon>";
     case "python":
-      return "python_s";
+      return "<box-icon name='python' color='white' type='logo' ></box-icon>";
     case "html":
-      return "html";
+      return "<box-icon type='logo' color='orange' name='html5'></box-icon>";
     case "css":
-      return "css";
+      return "<box-icon type='logo' color='lightblue' name='css3'></box-icon>";
     default:
       return "";
   }

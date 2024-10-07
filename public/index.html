@@ -14,11 +14,11 @@
   <body>
     <div class="container">
       <div class="sidebar">
-        <button id="logoutButton"><box-icon name='log-out'></box-icon></button>
+        <button id="logoutButton"><box-icon name='log-out' color='white'></box-icon></button>
 
          <!-- Button to toggle Terminal -->
-         <button id="toggle-terminal" onclick="toggleTerminal()"><box-icon name='sidebar' ></box-icon></button>
-         <button id="toggle-split" onclick="toggleSplitView()"><box-icon type='solid' name='layout'></box-icon></button>
+         <button id="toggle-terminal" onclick="toggleTerminal()"><box-icon name='sidebar' color='white'></box-icon></button>
+         <button id="toggle-split" onclick="toggleSplitView()"><box-icon type='solid' color='white' name='layout'></box-icon></button>
 
         <!-- Audio Call Buttons -->
 <button id="join-audio">Join Audio Call</button>
@@ -41,7 +41,7 @@
             });
         </script>
 
-        <h3>File Explorer</h3>
+        <h3>File Explorer <box-icon type='solid' size='sm' border='square' color='white' name='file-blank'></box-icon></h3>
         <ul id="file-list"></ul>
 
         <div class="file-open-indicator" id="file-open-indicator">
@@ -60,10 +60,10 @@
         </div>
 
         <!---Button to the brainstorm Area-->
-        <button type="button" id="start-draw">Go to Brainstorm Area</button>
+        <button type="button" id="start-draw">Go to Brainstorm Area <box-icon type='solid' name='chalkboard' border='square'  size='md' color='white'></box-icon> </button>
 
         <!---Button to the Live Preview Area-->
-        <button type="button" id="go-to-live-preview" onclick="toggleLivePreview()">Go to Live Preview</button>
+        <button type="button" id="go-to-live-preview" onclick="toggleLivePreview()">Go to Live Preview <box-icon type='solid' border='square' size='md' color='white'name='slideshow'></box-icon></button>
         
 
         <div class="theme-selector">
