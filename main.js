@@ -1,13 +1,18 @@
 const express = require('express');
 const { exec } = require('child_process');
 const path = require('path');
-const app = express();
+const http = require('http');
+const socketIO = require('socket.io');
 const axios = require('axios');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+// Endpoint to generate Agora room
 app.post('/generate-room', async (req, res) => {
   try {
     const { data } = await axios.post('https://api.agora.io/v1/apps/{your-app-id}/rooms', {
@@ -62,9 +67,31 @@ app.post('/command', (req, res) => {
   });
 });
 
+// WebRTC signaling using Socket.IO
+io.on('connection', (socket) => {
+  console.log('A user connected');
 
+  // Handle offer
+  socket.on('offer', (offer) => {
+    socket.broadcast.emit('offer', offer);
+  });
+
+  // Handle answer
+  socket.on('answer', (answer) => {
+    socket.broadcast.emit('answer', answer);
+  });
+
+  // Handle ICE candidates
+  socket.on('ice-candidate', (candidate) => {
+    socket.broadcast.emit('ice-candidate', candidate);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -1,74 +1,111 @@
-let client;
-let localAudioTrack;
-let isMuted = false;
+const socket = io(); // Initialize Socket.IO
 
-document.getElementById('join-audio').addEventListener('click', async () => {
-    // Initialize Agora client
-    client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+let localStream;
+let remoteStream;
+let peerConnection;
 
-    const appId = '4547ccb088dd4df7a0cf10e60f29c335'; // Replace with your Agora App ID
-    const channel = 'test'; // Replace with your channel name
-    const token = null; // Use token if your project is secured
+const configuration = {
+  iceServers: [
+    {
+      urls: "stun:stun.l.google.com:19302", // Google's public STUN server
+    },
+  ],
+};
 
-    try {
-        // Join the channel
-        await client.join(appId, channel, token, null);
-
-        // Create local audio track
-        localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-
-        // Publish the local audio track to the Agora channel
-        await client.publish([localAudioTrack]);
-
-        console.log('Audio call started');
-
-        // Update UI
-        document.getElementById('join-audio').style.display = 'none';
-        document.getElementById('leave-audio').style.display = 'inline';
-        document.getElementById('mute-audio').style.display = 'inline';
-    } catch (error) {
-        console.error('Failed to join audio call:', error);
-    }
-
-    // Subscribe to remote users
-    client.on('user-published', async (user, mediaType) => {
-        await client.subscribe(user, mediaType);
-        if (mediaType === 'audio') {
-            const remoteAudioTrack = user.audioTrack;
-            remoteAudioTrack.play();
-            console.log('Remote audio playing');
-        }
+// Access user's media (audio and video)
+async function startMedia() {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
     });
-});
+    document.getElementById("localVideo").srcObject = localStream;
+  } catch (error) {
+    console.error("Error accessing media devices.", error);
+  }
+}
 
-// Leave the audio call
-document.getElementById('leave-audio').addEventListener('click', async () => {
-    if (client) {
-        await client.leave();
-        localAudioTrack.close();
+// Create an offer to initiate the connection
+async function createOffer() {
+  peerConnection = new RTCPeerConnection(configuration);
 
-        console.log('Audio call left');
-        document.getElementById('join-audio').style.display = 'inline';
-        document.getElementById('leave-audio').style.display = 'none';
-        document.getElementById('mute-audio').style.display = 'none';
-        document.getElementById('unmute-audio').style.display = 'none';
+  // Add local stream to peer connection
+  localStream.getTracks().forEach((track) => {
+    peerConnection.addTrack(track, localStream);
+  });
+
+  // When remote stream is received
+  peerConnection.ontrack = (event) => {
+    const [remoteStreamTrack] = event.streams;
+    document.getElementById("remoteVideo").srcObject = remoteStreamTrack;
+  };
+
+  // When ICE candidates are received
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit("ice-candidate", event.candidate);
     }
+  };
+
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  socket.emit("offer", offer);
+}
+
+// Handle incoming offer and send an answer
+socket.on("offer", async (offer) => {
+  peerConnection = new RTCPeerConnection(configuration);
+
+  // Add local stream to peer connection
+  localStream.getTracks().forEach((track) => {
+    peerConnection.addTrack(track, localStream);
+  });
+
+  // When remote stream is received
+  peerConnection.ontrack = (event) => {
+    const [remoteStreamTrack] = event.streams;
+    document.getElementById("remoteVideo").srcObject = remoteStreamTrack;
+  };
+
+  // When ICE candidates are received
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit("ice-candidate", event.candidate);
+    }
+  };
+
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+  socket.emit("answer", answer);
 });
 
-// Mute audio
-document.getElementById('mute-audio').addEventListener('click', () => {
-    localAudioTrack.setMuted(true);
-    isMuted = true;
-    document.getElementById('mute-audio').style.display = 'none';
-    document.getElementById('unmute-audio').style.display = 'inline';
-    console.log('Audio muted');
+// Handle incoming answer
+socket.on("answer", async (answer) => {
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 
-// Unmute audio
-document.getElementById('unmute-audio').addEventListener('click', () => {
-    localAudioTrack.setMuted(false);
-    isMuted = false;
-    document.getElementById('mute-audio').style.display = 'inline';
-    document.getElementById('unmute-audio').style.display = 'none';
-    console.log('Audio unmuted');
+// Handle incoming ICE candidates
+socket.on("ice-candidate", async (candidate) => {
+  try {
+    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+  } catch (error) {
+    console.error("Error adding received ICE candidate", error);
+  }
+});
+
+// Function to start the call
+function startCall() {
+  startMedia().then(() => createOffer());
+}
+
+// UI elements (Assuming these buttons are present in your HTML)
+document.getElementById("join-audio").addEventListener("click", startCall);
+document.getElementById("leave-audio").addEventListener("click", () => {
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+    document.getElementById("remoteVideo").srcObject = null;
+  }
 });

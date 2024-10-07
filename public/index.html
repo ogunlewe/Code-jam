@@ -58,12 +58,20 @@
          
           <button onclick="createFile()">Create</button>
         </div>
+        
 
         <!---Button to the brainstorm Area-->
         <button type="button" id="start-draw">Go to Brainstorm Area <box-icon type='solid' name='chalkboard' border='square'  size='md' color='white'></box-icon> </button>
 
         <!---Button to the Live Preview Area-->
         <button type="button" id="go-to-live-preview" onclick="toggleLivePreview()">Go to Live Preview <box-icon type='solid' border='square' size='md' color='white'name='slideshow'></box-icon></button>
+
+        <!---------<button id="join-audio">Join Call</button>
+  <button id="leave-audio">Leave Call</button>
+
+  <!-- Load Client-side JS 
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>-->
         
 
         <div class="theme-selector">
@@ -75,6 +83,9 @@
           </select>
         </div>
       </div>
+
+      
+      
 
        <!---Live Preview Section -->
   <div class="live-preview-area" id="live-preview-area" style="display: none; width: 200vh;">
