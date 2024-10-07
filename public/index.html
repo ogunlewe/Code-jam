@@ -9,15 +9,16 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
   </head>
   <body>
     <div class="container">
       <div class="sidebar">
-        <button id="logoutButton">Logout</button>
+        <button id="logoutButton"><box-icon name='log-out'></box-icon></button>
 
          <!-- Button to toggle Terminal -->
-         <button id="toggle-terminal" onclick="toggleTerminal()">Toggle Terminal</button>
-         <button id="toggle-split" onclick="toggleSplitView()">Toggle Split View</button>
+         <button id="toggle-terminal" onclick="toggleTerminal()"><box-icon name='sidebar' ></box-icon></button>
+         <button id="toggle-split" onclick="toggleSplitView()"><box-icon type='solid' name='layout'></box-icon></button>
 
         <!-- Audio Call Buttons -->
 <button id="join-audio">Join Audio Call</button>
@@ -54,11 +55,7 @@
             id="new-file-name"
             placeholder="Filename (e.g. main.js)"
           />
-          <select id="languageSelector">
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="html">HTML</option>
-          </select>
+         
           <button onclick="createFile()">Create</button>
         </div>
 

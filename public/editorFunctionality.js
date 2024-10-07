@@ -5,6 +5,16 @@ let breakpoints = [];
 let debugIndex = 0;
 let livePreviewEnabled = false;
 
+// Language mapping by file extension
+const languageMap = {
+  js: "javascript",
+  html: "html",
+  css: "css",
+  py: "python",
+  json: "json",
+};
+
+// Monaco Editor Setup
 require.config({
   paths: { vs: "https://unpkg.com/monaco-editor@0.23.0/min/vs" },
 });
@@ -12,13 +22,13 @@ require.config({
 require(["vs/editor/editor.main"], function () {
   editor = monaco.editor.create(document.getElementById("editor"), {
     value: "",
-    language: "javascript",
+    language: "javascript", // default
     theme: "vs-dark",
     wordWrap: "on",
     automaticLayout: true,
   });
 
-  // Add auto-completion
+  // Auto-completion setup
   monaco.languages.registerCompletionItemProvider("javascript", {
     provideCompletionItems: () => {
       return {
@@ -27,14 +37,12 @@ require(["vs/editor/editor.main"], function () {
             label: "console.log",
             kind: monaco.languages.CompletionItemKind.Function,
             insertText: "console.log(${1:message});",
-            insertTextRules:
-              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
             label: "for loop",
             kind: monaco.languages.CompletionItemKind.Snippet,
-            insertText:
-              "for (let ${1:i} = 0; ${1:i} < ${2:10}; ${1:i}++) {\n\t$0\n}",
+            insertText: "for (let ${1:i} = 0; ${1:i} < ${2:10}; ${1:i}++) {\n\t$0\n}",
           },
           {
             label: "if statement",
@@ -46,23 +54,19 @@ require(["vs/editor/editor.main"], function () {
     },
   });
 
-  // Cursor position tracking
+  // Cursor tracking
   editor.onDidChangeCursorPosition(function () {
-    var position = editor.getPosition();
-    document.getElementById(
-      "cursor-position"
-    ).innerText = `Ln: ${position.lineNumber}, Col: ${position.column}`;
+    const position = editor.getPosition();
+    document.getElementById("cursor-position").innerText = `Ln: ${position.lineNumber}, Col: ${position.column}`;
   });
 
   // Theme switcher
-  document
-    .getElementById("themeSelector")
-    .addEventListener("change", function () {
-      var theme = this.value;
-      monaco.editor.setTheme(theme);
-    });
+  document.getElementById("themeSelector").addEventListener("change", function () {
+    const theme = this.value;
+    monaco.editor.setTheme(theme);
+  });
 
-  // Add click to set breakpoints
+  // Set breakpoints on mouse click
   editor.onMouseDown((e) => {
     const line = e.target.position.lineNumber;
     if (breakpoints.includes(line)) {
@@ -73,7 +77,7 @@ require(["vs/editor/editor.main"], function () {
     updateBreakpointsList();
   });
 
-  // Live Preview update when code changes
+  // Live Preview updates
   editor.onDidChangeModelContent(function () {
     if (livePreviewEnabled) {
       updateLivePreview();
@@ -81,7 +85,13 @@ require(["vs/editor/editor.main"], function () {
   });
 });
 
-// Function to update the breakpoints display
+// Function to detect language based on file extension
+function detectLanguage(fileName) {
+  const fileExt = fileName.split(".").pop();
+  return languageMap[fileExt] || "plaintext";
+}
+
+// Function to update breakpoints
 function updateBreakpointsList() {
   const breakpointsList = document.getElementById("breakpoints");
   breakpointsList.innerHTML = "";
@@ -92,10 +102,10 @@ function updateBreakpointsList() {
   });
 }
 
-// Function to create a file
+// Create a new file
 function createFile() {
   const fileName = document.getElementById("new-file-name").value;
-  const language = document.getElementById("languageSelector").value;
+  const language = detectLanguage(fileName); // Detect language by extension
 
   if (fileName) {
     files[fileName] = {
@@ -105,9 +115,7 @@ function createFile() {
 
     const fileList = document.getElementById("file-list");
     const li = document.createElement("li");
-    li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(
-      language
-    )}</span>${fileName}`;
+    li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(language)}</span>${fileName}`;
     li.onclick = function () {
       openFile(fileName);
     };
@@ -117,6 +125,7 @@ function createFile() {
   }
 }
 
+// Get file icon by language
 function getFileIcon(language) {
   switch (language) {
     case "javascript":
@@ -125,25 +134,28 @@ function getFileIcon(language) {
       return "python_s";
     case "html":
       return "html";
+    case "css":
+      return "css";
     default:
       return "";
   }
 }
 
+// Open a file
 function openFile(fileName) {
   currentFile = fileName;
   const file = files[fileName];
   editor.setValue(file.content);
-  monaco.editor.setModelLanguage(editor.getModel(), file.language);
+  const language = detectLanguage(fileName);
+  monaco.editor.setModelLanguage(editor.getModel(), language);
   document.getElementById("project-status").innerText = `${fileName} opened`;
-  document.getElementById(
-    "file-open-indicator"
-  ).innerText = `${fileName} is open`;
+  document.getElementById("file-open-indicator").innerText = `${fileName} is open`;
 }
 
+// Run the code
 async function runCode() {
   const code = editor.getValue();
-  const language = document.getElementById("languageSelector").value;
+  const language = detectLanguage(currentFile);
   const terminal = document.getElementById("terminal");
 
   terminal.innerHTML += `<p>Running code...</p>`;
@@ -174,14 +186,20 @@ function saveFile(fileName) {
   document.getElementById("project-status").innerText = `${fileName} saved`;
 }
 
-// Start debugging session
+// Toggle the sidebar visibility
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.classList.toggle("sidebar-collapsed");
+}
+
+// Start debugging
 function debugCode() {
   const code = editor.getValue().split("\n");
   debugIndex = 0;
   stepThroughCode(code);
 }
 
-// Step through code
+// Step through the code
 function stepThrough() {
   const code = editor.getValue().split("\n");
   if (debugIndex < code.length) {
@@ -191,28 +209,23 @@ function stepThrough() {
   }
 }
 
-// Function to step through code and hit breakpoints
-function stepThroughCode(code) {
-  const line = debugIndex + 1; // Line numbers start at 1
-  if (breakpoints.includes(line)) {
-    document.getElementById(
-      "terminal"
-    ).innerHTML += `<p>Paused at line ${line}: ${code[debugIndex]}</p>`;
-  } else {
-    executeLine(code[debugIndex]);
-    debugIndex++;
-  }
-}
-
-// Execute a line of code (JavaScript)
+// Execute a line of code
 function executeLine(line) {
   try {
     eval(line);
     document.getElementById("terminal").innerHTML += `<p>Executed: ${line}</p>`;
   } catch (error) {
-    document.getElementById(
-      "terminal"
-    ).innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+    document.getElementById("terminal").innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+  }
+}
+
+// Toggle terminal visibility
+function toggleTerminal() {
+  const terminal = document.getElementById("terminal");
+  if (terminal.style.display === "none") {
+    terminal.style.display = "block";
+  } else {
+    terminal.style.display = "none";
   }
 }
 
@@ -243,62 +256,20 @@ document.getElementById("back-to-main-preview").addEventListener("click", functi
   document.getElementById("live-preview-area").style.display = "none";
 });
 
-// Function to toggle the terminal visibility
-function toggleTerminal() {
-  const terminal = document.getElementById("terminal");
-  if (terminal.style.display === "none") {
-    terminal.style.display = "block";
-  } else {
-    terminal.style.display = "none";
-  }
-}
-
-
-
-// Function to toggle split view between horizontal and vertical
-function toggleSplitView() {
-  const container = document.getElementById('editor-container');
-  if (container.classList.contains('horizontal-split')) {
-    container.classList.remove('horizontal-split');
-  } else {
-    container.classList.add('horizontal-split');
-  }
-}
-
-// Function to toggle the terminal visibility
-function toggleTerminal() {
-  const terminal = document.getElementById("terminal");
-  if (terminal.style.display === "none") {
-    terminal.style.display = "block";
-  } else {
-    terminal.style.display = "none";
-  }
-}
-
 // Update the Live Preview iframe with the latest code
 function updateLivePreview() {
   const code = editor.getValue();
-  const language = document.getElementById("languageSelector").value;
+  const language = detectLanguage(currentFile);
   if (language === "html") {
     const iframe = document.getElementById("live-preview");
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
     iframeDoc.open();
     iframeDoc.write(code);
     iframeDoc.close();
-  } else if (language === "css" || language === "javascript") {
+  } else if (language === "css" || "javascript") {
     const htmlCode = files["index.html"] ? files["index.html"].content : "";
-    const cssCode =
-      language === "css"
-        ? code
-        : files["styles.css"]
-        ? files["styles.css"].content
-        : "";
-    const jsCode =
-      language === "javascript"
-        ? code
-        : files["script.js"]
-        ? files["script.js"].content
-        : "";
+    const cssCode = language === "css" ? code : files["styles.css"] ? files["styles.css"].content : "";
+    const jsCode = language === "javascript" ? code : files["script.js"] ? files["script.js"].content : "";
 
     const fullCode = `
       <html>
