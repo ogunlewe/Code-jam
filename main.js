@@ -1,32 +1,12 @@
-const express = require('express');
-const { exec } = require('child_process');
-const path = require('path');
-const http = require('http');
-const socketIO = require('socket.io');
-const axios = require('axios');
+const express = require('express');  // Import express
+const { exec } = require('child_process');  // Import exec for executing shell commands
+const path = require('path');  // Import path module to handle file paths
+const axios = require('axios');  // Import axios for HTTP requests
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+const app = express();  // Initialize express application
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Endpoint to generate Agora room
-app.post('/generate-room', async (req, res) => {
-  try {
-    const { data } = await axios.post('https://api.agora.io/v1/apps/{your-app-id}/rooms', {
-      name: 'your-room-name',
-      uid: 'your-unique-id',
-    });
-    const roomUUID = data.roomUUID;
-    const token = data.token;
-    
-    res.json({ roomUUID, token });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create room' });
-  }
-});
+app.use(express.json());  // Middleware to parse JSON requests
+app.use(express.static(path.join(__dirname, 'public')));  // Serve static files from 'public' directory
 
 // Endpoint to execute code
 app.post('/execute', (req, res) => {
@@ -67,31 +47,7 @@ app.post('/command', (req, res) => {
   });
 });
 
-// WebRTC signaling using Socket.IO
-io.on('connection', (socket) => {
-  console.log('A user connected');
-
-  // Handle offer
-  socket.on('offer', (offer) => {
-    socket.broadcast.emit('offer', offer);
-  });
-
-  // Handle answer
-  socket.on('answer', (answer) => {
-    socket.broadcast.emit('answer', answer);
-  });
-
-  // Handle ICE candidates
-  socket.on('ice-candidate', (candidate) => {
-    socket.broadcast.emit('ice-candidate', candidate);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT || 3000;  // Set the port
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);  // Start the server
 });
