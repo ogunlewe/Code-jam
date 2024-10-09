@@ -19,8 +19,8 @@ body {
 
 /* Sidebar Styling */
 .sidebar {
-  width: 250px;
-  background-color: #282c34;
+  width: 200px;
+  background-color: #090b10;
   color: #fff;
   padding: 20px;
   overflow-y: auto;
@@ -59,7 +59,7 @@ body {
 }
 
 .terminal {
-  background-color: #1e1e1e;
+  background-color: #212529!important;
   color: white;
   height: 20vh;
   padding: 10px;

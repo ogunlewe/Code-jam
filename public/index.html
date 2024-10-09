@@ -18,7 +18,6 @@
 
          <!-- Button to toggle Terminal -->
          <button id="toggle-terminal" onclick="toggleTerminal()"><box-icon name='sidebar' color='white'></box-icon></button>
-         <button id="toggle-split" onclick="toggleSplitView()"><box-icon type='solid' color='white' name='layout'></box-icon></button>
 
         <!-- Audio Call Buttons -->
 <button id="join-audio">Join Audio Call</button>
@@ -108,19 +107,19 @@
         <div class="toolbar">
           <input type="color" id="colorPicker" />
           <input type="range" id="brushSize" min="1" max="10" />
-          <button id="drawTool">Draw</button>
-          <button id="eraserTool">Eraser</button>
-          <button id="rectangleTool">Rectangle</button>
-          <button id="textTool">Text</button>
-          <button id="addStickyNoteButton">Add Sticky Note</button>
+          <button id="drawTool">Draw <box-icon type='solid' name='pen'></box-icon> </button>
+          <button id="eraserTool">Eraser <box-icon name='eraser' type='solid' ></box-icon> </button>
+          <button id="rectangleTool">Rectangle <box-icon name='pencil' type='solid' ></box-icon> </button>
+          <button id="textTool">Text <box-icon name='text' ></box-icon> </button>
+          <button id="addStickyNoteButton">Add Sticky Note <box-icon type='solid' name='notepad'></box-icon> </button>
           <input
             type="file"
             id="fileUpload"
             accept=".jpg,.jpeg,.png,.pdf"
-            multiple
+            multiple <box-icon name='upload' ></box-icon>
           />
-          <button id="clearButton">Clear Board</button>
-          <button id="deleteButton" disabled>Delete</button>
+          <button id="clearButton">Clear Board <box-icon name='refresh'></box-icon> </button>
+          <button id="deleteButton" disabled>Delete <box-icon name='trash'></box-icon> </button>
         </div>
         <canvas id="whiteboard" width="800" height="600"></canvas>
         <div id="stickyNotesContainer"></div>
