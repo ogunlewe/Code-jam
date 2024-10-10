@@ -14,7 +14,6 @@ const languageMap = {
   json: "json",
 };
 
-// Monaco Editor Setup
 require.config({
   paths: { vs: "https://unpkg.com/monaco-editor@0.23.0/min/vs" },
 });
@@ -172,7 +171,12 @@ async function runCode() {
       }),
     });
 
-    const result = await response.json();
+    // Log the response for debugging
+    const textResponse = await response.text();
+    console.log("Response text:", textResponse);
+
+    // Attempt to parse it as JSON
+    const result = JSON.parse(textResponse);
     terminal.innerHTML += `<p>${result.output}</p>`;
   } catch (error) {
     terminal.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
