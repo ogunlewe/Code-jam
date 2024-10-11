@@ -4,6 +4,7 @@ let currentFile = null;
 let breakpoints = [];
 let debugIndex = 0;
 let livePreviewEnabled = false;
+let autosaveInterval;
 
 // Language mapping by file extension
 const languageMap = {
@@ -83,6 +84,14 @@ require(["vs/editor/editor.main"], function () {
       updateLivePreview();
     }
   });
+
+  // Set up autosave (every 30 seconds)
+  autosaveInterval = setInterval(() => {
+    if (currentFile) {
+      saveFile(currentFile);
+      document.getElementById("project-status").innerText = `${currentFile} autosaved at ${new Date().toLocaleTimeString()}`;
+    }
+  }, 30000); // Autosave every 30 seconds
 });
 
 // Function to detect language based on file extension
@@ -115,7 +124,7 @@ function createFile() {
 
     const fileList = document.getElementById("file-list");
     const li = document.createElement("li");
-    li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(language)}</span>${fileName}`;
+    li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(language)}</span>${fileName} <button class="delete-btn" onclick="deleteFile('${fileName}')">Delete</button>`;
     li.onclick = function () {
       openFile(fileName);
     };
@@ -129,9 +138,9 @@ function createFile() {
 function getFileIcon(language) {
   switch (language) {
     case "javascript":
-      return "<box-icon name='javascript' color='yellow' type='logo' ></box-icon>";
+      return "<box-icon name='javascript' color='yellow' type='logo'></box-icon>";
     case "python":
-      return "<box-icon name='python' color='white' type='logo' ></box-icon>";
+      return "<box-icon name='python' color='white' type='logo'></box-icon>";
     case "html":
       return "<box-icon type='logo' color='orange' name='html5'></box-icon>";
     case "css":
@@ -150,6 +159,33 @@ function openFile(fileName) {
   monaco.editor.setModelLanguage(editor.getModel(), language);
   document.getElementById("project-status").innerText = `${fileName} opened`;
   document.getElementById("file-open-indicator").innerText = `${fileName} is open`;
+}
+
+// Delete a file
+function deleteFile(fileName) {
+  if (confirm(`Are you sure you want to delete ${fileName}?`)) {
+    delete files[fileName]; // Remove file from memory
+    document.getElementById("file-list").innerHTML = ""; // Clear the list
+    Object.keys(files).forEach((file) => {
+      createFileElement(file); // Recreate the file list
+    });
+    if (currentFile === fileName) {
+      editor.setValue(""); // Clear editor if the open file is deleted
+      document.getElementById("file-open-indicator").innerText = "No file opened";
+    }
+  }
+}
+
+// Helper to recreate file list
+function createFileElement(fileName) {
+  const language = detectLanguage(fileName);
+  const fileList = document.getElementById("file-list");
+  const li = document.createElement("li");
+  li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(language)}</span>${fileName} <button class="delete-btn" onclick="deleteFile('${fileName}')">Delete</button>`;
+  li.onclick = function () {
+    openFile(fileName);
+  };
+  fileList.appendChild(li);
 }
 
 // Run the code

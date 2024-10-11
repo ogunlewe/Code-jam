@@ -1,53 +1,53 @@
-const express = require('express');  // Import express
-const { exec } = require('child_process');  // Import exec for executing shell commands
-const path = require('path');  // Import path module to handle file paths
-const axios = require('axios');  // Import axios for HTTP requests
+const express = require('express');
+const { exec } = require('child_process');
+const path = require('path');
+const fs = require('fs-extra');  // fs-extra to handle file operations
+const app = express();
+const os = require('os');
 
-const app = express();  // Initialize express application
-
-app.use(express.json());  // Middleware to parse JSON requests
-app.use(express.static(path.join(__dirname, 'public')));  // Serve static files from 'public' directory
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Endpoint to execute code
 app.post('/execute', (req, res) => {
   const { language, code } = req.body;
-  let command;
+  let filePath;
 
+  // Determine file extension based on language
   if (language === 'javascript') {
-    command = `node -e "${code.replace(/"/g, '\\"')}"`;
+    filePath = path.join(os.tmpdir(), 'tempCode.js');  // Temporary JS file
   } else if (language === 'python') {
-    command = `python -c "${code.replace(/"/g, '\\"')}"`;
+    filePath = path.join(os.tmpdir(), 'tempCode.py');  // Temporary Python file
   } else {
     return res.status(400).json({ output: 'Unsupported language' });
   }
 
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      return res.json({ output: `Error: ${error.message}` });
+  // Write the code to the temporary file
+  fs.writeFile(filePath, code, (err) => {
+    if (err) {
+      return res.json({ output: `Error writing file: ${err.message}` });
     }
-    if (stderr) {
-      return res.json({ output: `Stderr: ${stderr}` });
-    }
-    res.json({ output: stdout });
+
+    // Execute the file using the appropriate command
+    let command = language === 'javascript' ? `node ${filePath}` : `python ${filePath}`;
+
+    exec(command, { maxBuffer: 1024 * 500 }, (error, stdout, stderr) => {
+      // Clean up the temp file after execution
+      fs.remove(filePath, () => {});
+
+      if (error) {
+        return res.json({ output: `Error: ${error.message}` });
+      }
+      if (stderr) {
+        return res.json({ output: `Stderr: ${stderr}` });
+      }
+      res.json({ output: stdout });
+    });
   });
 });
 
-// Endpoint to execute terminal commands
-app.post('/command', (req, res) => {
-  const { command } = req.body;
-
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      return res.json({ output: `Error: ${error.message}` });
-    }
-    if (stderr) {
-      return res.json({ output: `Stderr: ${stderr}` });
-    }
-    res.json({ output: stdout });
-  });
-});
-
-const PORT = process.env.PORT || 3000;  // Set the port
+// Start server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);  // Start the server
+  console.log(`Server running on port ${PORT}`);
 });
