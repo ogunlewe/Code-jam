@@ -4,6 +4,7 @@ let currentFile = null;
 let breakpoints = [];
 let debugIndex = 0;
 let livePreviewEnabled = false;
+let autosaveInterval;
 
 // Language mapping by file extension
 const languageMap = {
@@ -14,6 +15,7 @@ const languageMap = {
   json: "json",
 };
 
+// Monaco Editor Setup
 require.config({
   paths: { vs: "https://unpkg.com/monaco-editor@0.23.0/min/vs" },
 });
@@ -82,6 +84,14 @@ require(["vs/editor/editor.main"], function () {
       updateLivePreview();
     }
   });
+
+  // Set up autosave (every 30 seconds)
+  autosaveInterval = setInterval(() => {
+    if (currentFile) {
+      saveFile(currentFile);
+      document.getElementById("project-status").innerText = `${currentFile} autosaved at ${new Date().toLocaleTimeString()}`;
+    }
+  }, 30000); // Autosave every 30 seconds
 });
 
 // Function to detect language based on file extension
@@ -114,7 +124,7 @@ function createFile() {
 
     const fileList = document.getElementById("file-list");
     const li = document.createElement("li");
-    li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(language)}</span>${fileName}`;
+    li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(language)}</span>${fileName} <button class="delete-btn" onclick="deleteFile('${fileName}')">Delete</button>`;
     li.onclick = function () {
       openFile(fileName);
     };
@@ -128,9 +138,9 @@ function createFile() {
 function getFileIcon(language) {
   switch (language) {
     case "javascript":
-      return "<box-icon name='javascript' color='yellow' type='logo' ></box-icon>";
+      return "<box-icon name='javascript' color='yellow' type='logo'></box-icon>";
     case "python":
-      return "<box-icon name='python' color='white' type='logo' ></box-icon>";
+      return "<box-icon name='python' color='white' type='logo'></box-icon>";
     case "html":
       return "<box-icon type='logo' color='orange' name='html5'></box-icon>";
     case "css":
@@ -151,12 +161,40 @@ function openFile(fileName) {
   document.getElementById("file-open-indicator").innerText = `${fileName} is open`;
 }
 
+// Delete a file
+function deleteFile(fileName) {
+  if (confirm(`Are you sure you want to delete ${fileName}?`)) {
+    delete files[fileName]; // Remove file from memory
+    document.getElementById("file-list").innerHTML = ""; // Clear the list
+    Object.keys(files).forEach((file) => {
+      createFileElement(file); // Recreate the file list
+    });
+    if (currentFile === fileName) {
+      editor.setValue(""); // Clear editor if the open file is deleted
+      document.getElementById("file-open-indicator").innerText = "No file opened";
+    }
+  }
+}
+
+// Helper to recreate file list
+function createFileElement(fileName) {
+  const language = detectLanguage(fileName);
+  const fileList = document.getElementById("file-list");
+  const li = document.createElement("li");
+  li.innerHTML = `<span class="material-icons file-icon">${getFileIcon(language)}</span>${fileName} <button class="delete-btn" onclick="deleteFile('${fileName}')">Delete</button>`;
+  li.onclick = function () {
+    openFile(fileName);
+  };
+  fileList.appendChild(li);
+}
+
 // Run the code
 async function runCode() {
   const code = editor.getValue();
   const language = detectLanguage(currentFile);
   const terminal = document.getElementById("terminal");
 
+  // Clear the terminal before running new code
   terminal.innerHTML += `<p>Running code...</p>`;
 
   try {
@@ -171,13 +209,11 @@ async function runCode() {
       }),
     });
 
-    // Log the response for debugging
-    const textResponse = await response.text();
-    console.log("Response text:", textResponse);
+    const result = await response.json();
 
-    // Attempt to parse it as JSON
-    const result = JSON.parse(textResponse);
-    terminal.innerHTML += `<p>${result.output}</p>`;
+    // Ensure line breaks are displayed correctly by converting \n to <br>
+    const formattedOutput = result.output.replace(/\n/g, "<br>");
+    terminal.innerHTML += `<p>${formattedOutput}</p>`;
   } catch (error) {
     terminal.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
   }
@@ -245,51 +281,20 @@ function toggleLivePreview() {
 }
 
 // Event listener for 'Go to Live Preview  Area' button
-document.getElementById("go-to-live-preview").addEventListener("click", function () {
-  // Hide the main editor container and show the Live Preview Area
-  document.querySelector(".editor-container").style.display = "none";
-  document.querySelector(".sidebar").style.display = "none";
-  document.getElementById("live-preview-area").style.display = "block";
+document.getElementById("livePreviewButton").addEventListener("click", function () {
+  window.location.href = "#live-preview";
 });
 
-// Event listener for 'Back to Main Area' button
-document.getElementById("back-to-main-preview").addEventListener("click", function () {
-  // Show the main editor container and hide the Live Preview Area
-  document.querySelector(".editor-container").style.display = "block";
-  document.querySelector(".sidebar").style.display = "block";
-  document.getElementById("live-preview-area").style.display = "none";
-});
-
-// Update the Live Preview iframe with the latest code
+// Update Live Preview area
 function updateLivePreview() {
   const code = editor.getValue();
-  const language = detectLanguage(currentFile);
-  if (language === "html") {
-    const iframe = document.getElementById("live-preview");
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(code);
-    iframeDoc.close();
-  } else if (language === "css" || "javascript") {
-    const htmlCode = files["index.html"] ? files["index.html"].content : "";
-    const cssCode = language === "css" ? code : files["styles.css"] ? files["styles.css"].content : "";
-    const jsCode = language === "javascript" ? code : files["script.js"] ? files["script.js"].content : "";
+  const livePreviewIframe = document.getElementById("livePreviewIframe");
+  const blob = new Blob([code], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  livePreviewIframe.src = url;
+}
 
-    const fullCode = `
-      <html>
-      <head>
-        <style>${cssCode}</style>
-      </head>
-      <body>
-        ${htmlCode}
-        <script>${jsCode}</script>
-      </body>
-      </html>
-    `;
-    const iframe = document.getElementById("live-preview");
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(fullCode);
-    iframeDoc.close();
-  }
+// Terminate script (for security or other purposes)
+function terminateScript() {
+  document.getElementById("terminal").innerHTML += `<p style="color: red;">Execution Terminated</p>`;
 }
