@@ -242,6 +242,7 @@ async function runCode() {
   const language = detectLanguage(currentFile);
   const terminal = document.getElementById("terminal");
 
+  // Clear the terminal before running new code
   terminal.innerHTML += `<p>Running code...</p>`;
 
   try {
@@ -257,7 +258,10 @@ async function runCode() {
     });
 
     const result = await response.json();
-    terminal.innerHTML += `<p>${result.output}</p>`;
+
+    // Ensure line breaks are displayed correctly by converting \n to <br>
+    const formattedOutput = result.output.replace(/\n/g, "<br>");
+    terminal.innerHTML += `<p>${formattedOutput}</p>`;
   } catch (error) {
     terminal.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
   }
@@ -325,51 +329,20 @@ function toggleLivePreview() {
 }
 
 // Event listener for 'Go to Live Preview  Area' button
-document.getElementById("go-to-live-preview").addEventListener("click", function () {
-  // Hide the main editor container and show the Live Preview Area
-  document.querySelector(".editor-container").style.display = "none";
-  document.querySelector(".sidebar").style.display = "none";
-  document.getElementById("live-preview-area").style.display = "block";
+document.getElementById("livePreviewButton").addEventListener("click", function () {
+  window.location.href = "#live-preview";
 });
 
-// Event listener for 'Back to Main Area' button
-document.getElementById("back-to-main-preview").addEventListener("click", function () {
-  // Show the main editor container and hide the Live Preview Area
-  document.querySelector(".editor-container").style.display = "block";
-  document.querySelector(".sidebar").style.display = "block";
-  document.getElementById("live-preview-area").style.display = "none";
-});
-
-// Update the Live Preview iframe with the latest code
+// Update Live Preview area
 function updateLivePreview() {
   const code = editor.getValue();
-  const language = detectLanguage(currentFile);
-  if (language === "html") {
-    const iframe = document.getElementById("live-preview");
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(code);
-    iframeDoc.close();
-  } else if (language === "css" || "javascript") {
-    const htmlCode = files["index.html"] ? files["index.html"].content : "";
-    const cssCode = language === "css" ? code : files["styles.css"] ? files["styles.css"].content : "";
-    const jsCode = language === "javascript" ? code : files["script.js"] ? files["script.js"].content : "";
+  const livePreviewIframe = document.getElementById("livePreviewIframe");
+  const blob = new Blob([code], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  livePreviewIframe.src = url;
+}
 
-    const fullCode = `
-      <html>
-      <head>
-        <style>${cssCode}</style>
-      </head>
-      <body>
-        ${htmlCode}
-        <script>${jsCode}</script>
-      </body>
-      </html>
-    `;
-    const iframe = document.getElementById("live-preview");
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(fullCode);
-    iframeDoc.close();
-  }
+// Terminate script (for security or other purposes)
+function terminateScript() {
+  document.getElementById("terminal").innerHTML += `<p style="color: red;">Execution Terminated</p>`;
 }
