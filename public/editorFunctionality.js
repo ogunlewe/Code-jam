@@ -265,6 +265,7 @@ async function runCode() {
   } catch (error) {
     terminal.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
   }
+  
 }
 
 // Save the file
