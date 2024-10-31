@@ -1,8 +1,9 @@
 const express = require('express');
+const app = express();
+
 const { exec } = require('child_process');
 const path = require('path');
-const fs = require('fs-extra');  // fs-extra to handle file operations
-const app = express();
+const fs = require('fs-extra');  
 const os = require('os');
 
 app.use(express.json());
@@ -13,16 +14,15 @@ app.post('/execute', (req, res) => {
   const { language, code } = req.body;
   let filePath;
 
-  // Determine file extension based on language
+  
   if (language === 'javascript') {
-    filePath = path.join(os.tmpdir(), 'tempCode.js');  // Temporary JS file
+    filePath = path.join(os.tmpdir(), 'tempCode.js');  
   } else if (language === 'python') {
-    filePath = path.join(os.tmpdir(), 'tempCode.py');  // Temporary Python file
+    filePath = path.join(os.tmpdir(), 'tempCode.py');  
   } else {
     return res.status(400).json({ output: 'Unsupported language' });
   }
 
-  // Write the code to the temporary file
   fs.writeFile(filePath, code, (err) => {
     if (err) {
       return res.json({ output: `Error writing file: ${err.message}` });
@@ -32,7 +32,10 @@ app.post('/execute', (req, res) => {
     let command = language === 'javascript' ? `node ${filePath}` : `python ${filePath}`;
 
     exec(command, { maxBuffer: 1024 * 500 }, (error, stdout, stderr) => {
+<<<<<<< HEAD
       // Clean up the temp file after execution
+=======
+>>>>>>> 0ab1256ca5ec5c20e806243e44a7395059e63b46
       fs.remove(filePath, () => {});
 
       if (error) {

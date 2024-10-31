@@ -1,174 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CODE JAM</title>
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <div class="sidebar">
-        <button id="logoutButton"><box-icon name='log-out' color='white'></box-icon></button>
 
-         <!-- Button to toggle Terminal -->
-         <button id="toggle-terminal" onclick="toggleTerminal()"><box-icon name='sidebar' color='white'></box-icon></button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CODE JAM</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+</head>
 
+<<<<<<< HEAD
         <!-- Audio Call Buttons -->
 <button id="join-audio"><a href="WEB_UIKITS.html" style="text-decoration: none; color: white;">Host Call</a> </button>
 <button id="leave-audio" style="display:none;">Leave Audio Call</button>
 <button id="mute-audio" style="display:none;">Mute Audio</button>
 <button id="unmute-audio" style="display:none;">Unmute Audio</button>
 
+=======
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <button id="logoutButton"><box-icon name='log-out' color='white'></box-icon></button>
 
-        <script>
-          document
-            .getElementById("logoutButton")
-            .addEventListener("click", function () {
-              // Clear login data and redirect to login page
-              localStorage.removeItem("isLoggedIn");
-              localStorage.removeItem("username");
-              window.location.href = "login.html";
-            });
-        </script>
+      <!-- Button to toggle Terminal -->
+      <button id="toggle-terminal" onclick="toggleTerminal()"><box-icon name='sidebar'
+          color='white'></box-icon></button>
 
-        <h3>File Explorer <box-icon type='solid' size='sm' border='square' color='white' name='file-blank'></box-icon></h3>
-        <ul id="file-list"></ul>
+      
+      
+>>>>>>> 0ab1256ca5ec5c20e806243e44a7395059e63b46
 
-        <div class="file-open-indicator" id="file-open-indicator">
-          No file opened
-        </div>
+      <script>
+        document
+          .getElementById("logoutButton")
+          .addEventListener("click", function () {
+            
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("username");
+            window.location.href = "login.html";
+          });
+      </script>
 
-        <div class="file-creation">
-          <h4>Create New Folder</h4>
-  <input type="text" id="new-folder-name" placeholder="Folder Name" />
-  <button onclick="createFolder()">Create Folder</button>
-          <h4>Create New File</h4>
-          <input
-            type="text"
-            id="new-file-name"
-            placeholder="Filename (e.g. main.js)"
-          />
-         
-          <button onclick="createFile()">Create</button>
-        </div>
-        
+      <h3>File Explorer <box-icon type='solid' size='sm' border='square' color='white' name='file-blank'></box-icon>
+      </h3>
+      <ul id="file-list"></ul>
 
-        <!---Button to the brainstorm Area-->
-        <button type="button" id="start-draw">Go to Brainstorm Area <box-icon type='solid' name='chalkboard' border='square'  size='md' color='white'></box-icon> </button>
+      <div class="file-open-indicator" id="file-open-indicator">
+        No file opened
+      </div>
 
-        <!---Button to the Live Preview Area-->
-        <button type="button" id="go-to-live-preview" onclick="toggleLivePreview()">Go to Live Preview <box-icon type='solid' border='square' size='md' color='white'name='slideshow'></box-icon></button>
+      <div class="file-creation">
+        <h4>Create New Folder</h4>
+        <input type="text" id="new-folder-name" placeholder="Folder Name" />
+        <button onclick="createFolder()">Create Folder</button>
+        <h4>Create New File</h4>
+        <input type="text" id="new-file-name" placeholder="Filename (e.g. main.js)" />
 
-        <!---------<button id="join-audio">Join Call</button>
+        <button onclick="createFile()">Create</button>
+      </div>
+
+
+      <!---Button to the brainstorm Area-->
+      <button type="button" id="start-draw">Go to Brainstorm Area <box-icon type='solid' name='chalkboard'
+          border='square' size='md' color='white'></box-icon> </button>
+
+      <!---Button to the Live Preview Area-->
+      <button type="button" id="go-to-live-preview" onclick="toggleLivePreview()">Go to Live Preview <box-icon
+          type='solid' border='square' size='md' color='white' name='slideshow'></box-icon></button>
+
+      <!---------<button id="join-audio">Join Call</button>
   <button id="leave-audio">Leave Call</button>
 
-  <!-- Load Client-side JS 
+  <!-Load Client-side JS 
   <script src="/socket.io/socket.io.js"></script>
   <script src="main.js"></script>-->
-        
 
-        <div class="theme-selector">
-          <h4>Theme</h4>
-          <select id="themeSelector">
-            <option value="vs-dark">Dark</option>
-            <option value="vs-light">Light</option>
-            <option value="hc-black">High Contrast</option>
-          </select>
-        </div>
+
+      <div class="theme-selector">
+        <h4>Theme</h4>
+        <select id="themeSelector">
+          <option value="vs-dark">Dark</option>
+          <option value="vs-light">Light</option>
+          <option value="hc-black">High Contrast</option>
+        </select>
       </div>
+      <button onclick="saveSnippet()">Save Snippet</button>
+      <select id="snippetDropdown"></select>
+      <button onclick="insertSnippet()">Insert Snippet</button>
+      <button onclick="deleteSnippet()">Delete Snippet</button>
+    </div>
 
-      
-      
 
-       <!---Live Preview Section -->
-  <div class="live-preview-area" id="live-preview-area" style="display: none; width: 200vh;">
-    <h3>Live Preview</h3>
-    <p id="livePreviewStatus">Live Preview ON</p>
-    <iframe
-      id="live-preview"
-      style="width: 100%; height: 80vh; border: 1px solid #ccc"
-    ></iframe>
-    <button type="button" id="back-to-main-preview">Back to Main Area</button>
+
+
+
+    <!---Live Preview Section -->
+    <div class="live-preview-area" id="live-preview-area" style="display: none; width: 200vh;">
+      <h3>Live Preview</h3>
+      <p id="livePreviewStatus">Live Preview ON</p>
+      <iframe id="live-preview" style="width: 100%; height: 80vh; border: 1px solid #ccc"></iframe>
+      <button type="button" id="back-to-main-preview">Back to Main Area</button>
+    </div>
+
+    <!---The White Board Section-->
+    <!-- Brainstorm Area -->
+    <div class="brainstorm-area" id="brainstorm-area" style="display: none">
+      <h3>Brainstorm Area</h3>
+      <div class="toolbar">
+        <input type="color" id="colorPicker" />
+        <input type="range" id="brushSize" min="1" max="10" />
+        <button id="drawTool">Draw <box-icon type='solid' name='pen'></box-icon> </button>
+        <button id="eraserTool">Eraser <box-icon name='eraser' type='solid'></box-icon> </button>
+        <button id="rectangleTool">Rectangle <box-icon name='pencil' type='solid'></box-icon> </button>
+        <button id="textTool">Text <box-icon name='text'></box-icon> </button>
+        <button id="addStickyNoteButton">Add Sticky Note <box-icon type='solid' name='notepad'></box-icon> </button>
+        <input type="file" id="fileUpload" accept=".jpg,.jpeg,.png,.pdf" multiple <box-icon name='upload'></box-icon>
+        />
+        <button id="clearButton">Clear Board <box-icon name='refresh'></box-icon> </button>
+        <button id="deleteButton" disabled>Delete <box-icon name='trash'></box-icon> </button>
+      </div>
+      <canvas id="whiteboard" width="800" height="600"></canvas>
+      <div id="stickyNotesContainer"></div>
+      <button type="button" id="back-to-main">Back to Main Area</button>
+    </div>
+    <script src="whiteboard.js"></script>
+
+
+
+
+    <!---Run Editor Section -->
+    <div class="editor-container" id="editor-container">
+      <div id="editor"></div>
+
+      <button onclick="runCode()">Run Code</button>
+      <div class="terminal" id="terminal">
+        <p>Terminal Output:</p>
+      </div>
+      <div class="status-bar">
+        <span id="cursor-position">Ln: 1, Col: 1</span>
+        <span id="project-status">Ready</span>
+      </div>
+    </div>
   </div>
 
-      <!---The White Board Section-->
-      <!-- Brainstorm Area -->
-      <div class="brainstorm-area" id="brainstorm-area" style="display: none">
-        <h3>Brainstorm Area</h3>
-        <div class="toolbar">
-          <input type="color" id="colorPicker" />
-          <input type="range" id="brushSize" min="1" max="10" />
-          <button id="drawTool">Draw <box-icon type='solid' name='pen'></box-icon> </button>
-          <button id="eraserTool">Eraser <box-icon name='eraser' type='solid' ></box-icon> </button>
-          <button id="rectangleTool">Rectangle <box-icon name='pencil' type='solid' ></box-icon> </button>
-          <button id="textTool">Text <box-icon name='text' ></box-icon> </button>
-          <button id="addStickyNoteButton">Add Sticky Note <box-icon type='solid' name='notepad'></box-icon> </button>
-          <input
-            type="file"
-            id="fileUpload"
-            accept=".jpg,.jpeg,.png,.pdf"
-            multiple <box-icon name='upload' ></box-icon>
-          />
-          <button id="clearButton">Clear Board <box-icon name='refresh'></box-icon> </button>
-          <button id="deleteButton" disabled>Delete <box-icon name='trash'></box-icon> </button>
-        </div>
-        <canvas id="whiteboard" width="800" height="600"></canvas>
-        <div id="stickyNotesContainer"></div>
-        <button type="button" id="back-to-main">Back to Main Area</button>
-      </div>
-      <script src="whiteboard.js"></script>
+  <script src="https://unpkg.com/monaco-editor@0.23.0/min/vs/loader.js"></script>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.17.0.js"></script>
+  <script src="https://cdn.agora.io/sdk/release/AgoraRTC.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="editorFunctionality.js"></script>
+  <script src="agoraFunctionality.js"></script>
+  <script>
+    // Function to get cookie value by name
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
+    }
 
+    // Check if the user is logged in using the loggedIn cookie
+    const isLoggedIn = getCookie("loggedIn");
 
- 
+    // Log the cookie value for debugging
+    console.log("LoggedIn Cookie Value:", isLoggedIn);
 
-  <!---Run Editor Section -->
-  <div class="editor-container" id="editor-container">
-    <div id="editor"></div>
+    // If not logged in, redirect to login page
+    if (!isLoggedIn || isLoggedIn !== "true") {
+      alert("You must be logged in to access this page.");
+      window.location.href = "login.html"; // Redirect to login page
+    } else {
+      console.log("User is logged in");
+    }
+  </script>
+</body>
 
-    <button onclick="runCode()">Run Code</button>
-    <div class="terminal" id="terminal">
-      <p>Terminal Output:</p>
-    </div>
-    <div class="status-bar">
-      <span id="cursor-position">Ln: 1, Col: 1</span>
-      <span id="project-status">Ready</span>
-    </div>
-  </div>
-</div>
-
-    <script src="https://unpkg.com/monaco-editor@0.23.0/min/vs/loader.js"></script>
-    <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.17.0.js"></script>
-    <script src="https://cdn.agora.io/sdk/release/AgoraRTC.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="editorFunctionality.js"></script>
-    <script src="agoraFunctionality.js"></script>
-    <script>
-      // Function to get cookie value by name
-      function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(";").shift();
-      }
-
-      // Check if the user is logged in using the loggedIn cookie
-      const isLoggedIn = getCookie("loggedIn");
-
-      // Log the cookie value for debugging
-      console.log("LoggedIn Cookie Value:", isLoggedIn);
-
-      // If not logged in, redirect to login page
-      if (!isLoggedIn || isLoggedIn !== "true") {
-        alert("You must be logged in to access this page.");
-        window.location.href = "login.html"; // Redirect to login page
-      } else {
-        console.log("User is logged in");
-      }
-    </script>
-  </body>
 </html>

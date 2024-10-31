@@ -5,8 +5,12 @@ let breakpoints = [];
 let debugIndex = 0;
 let livePreviewEnabled = false;
 let autosaveInterval;
+<<<<<<< HEAD
 let terminalInputMode = false;
 let inputCallback = null;
+=======
+let snippets = JSON.parse(localStorage.getItem('snippets')) || {}; // Load snippets from localStorage
+>>>>>>> 0ab1256ca5ec5c20e806243e44a7395059e63b46
 
 
 const languageMap = {
@@ -17,7 +21,7 @@ const languageMap = {
   json: "json",
 };
 
-// Monaco Editor Setup
+
 require.config({
   paths: { vs: "https://unpkg.com/monaco-editor@0.23.0/min/vs" },
 });
@@ -72,7 +76,7 @@ require(["vs/editor/editor.main"], function () {
     monaco.editor.setTheme(theme);
   });
 
-  // Set breakpoints on mouse click
+  
   editor.onMouseDown((e) => {
     const line = e.target.position.lineNumber;
     if (breakpoints.includes(line)) {
@@ -96,10 +100,64 @@ require(["vs/editor/editor.main"], function () {
       saveFile(currentFile);
       document.getElementById("project-status").innerText = `${currentFile} autosaved at ${new Date().toLocaleTimeString()}`;
     }
+<<<<<<< HEAD
   }, 30000); 
 });
 
 
+=======
+  }, 30000); // Autosave every 30 seconds
+  updateSnippetDropdown();
+
+});
+
+// Snippet Manager
+function saveSnippet() {
+  const snippetName = prompt("Enter a name for your snippet:");
+  if (snippetName) {
+    snippets[snippetName] = editor.getValue(); // Save current editor content as snippet
+    localStorage.setItem('snippets', JSON.stringify(snippets)); // Store snippets in localStorage
+    updateSnippetDropdown(); // Update the snippet dropdown
+    alert(`Snippet "${snippetName}" saved!`);
+  }
+}
+
+function insertSnippet() {
+  const snippetDropdown = document.getElementById("snippetDropdown");
+  const selectedSnippet = snippetDropdown.value;
+  
+  if (snippets[selectedSnippet]) {
+    editor.setValue(editor.getValue() + '\n' + snippets[selectedSnippet]); // Insert snippet at the end
+  }
+}
+
+function deleteSnippet() {
+  const snippetDropdown = document.getElementById("snippetDropdown");
+  const selectedSnippet = snippetDropdown.value;
+
+  if (snippets[selectedSnippet]) {
+    delete snippets[selectedSnippet]; // Remove from the snippets object
+    localStorage.setItem('snippets', JSON.stringify(snippets)); // Update localStorage
+    updateSnippetDropdown(); // Update the dropdown
+    alert(`Snippet "${selectedSnippet}" deleted!`);
+  }
+}
+
+// Update the snippet dropdown menu with current snippets
+function updateSnippetDropdown() {
+  const snippetDropdown = document.getElementById("snippetDropdown");
+  snippetDropdown.innerHTML = "";
+
+  for (let snippet in snippets) {
+    const option = document.createElement("option");
+    option.value = snippet;
+    option.text = snippet;
+    snippetDropdown.appendChild(option);
+  }
+}
+
+// Function to detect language based on file extension
+>>>>>>> 0ab1256ca5ec5c20e806243e44a7395059e63b46
 function detectLanguage(fileName) {
   const fileExt = fileName.split(".").pop();
   return languageMap[fileExt] || "plaintext";
@@ -217,6 +275,7 @@ async function runCode() {
   } catch (error) {
     terminal.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
   }
+  
 }
 
 // Handle terminal command input
