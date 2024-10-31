@@ -5,8 +5,10 @@ let breakpoints = [];
 let debugIndex = 0;
 let livePreviewEnabled = false;
 let autosaveInterval;
+let terminalInputMode = false;
+let inputCallback = null;
 
-// Language mapping by file extension
+
 const languageMap = {
   js: "javascript",
   html: "html",
@@ -23,7 +25,7 @@ require.config({
 require(["vs/editor/editor.main"], function () {
   editor = monaco.editor.create(document.getElementById("editor"), {
     value: "",
-    language: "javascript", // default
+    language: "javascript", 
     theme: "vs-dark",
     wordWrap: "on",
     automaticLayout: true,
@@ -50,12 +52,15 @@ require(["vs/editor/editor.main"], function () {
             kind: monaco.languages.CompletionItemKind.Snippet,
             insertText: "if (${1:condition}) {\n\t$0\n}",
           },
+          {
+            
+          }
         ],
       };
     },
   });
 
-  // Cursor tracking
+
   editor.onDidChangeCursorPosition(function () {
     const position = editor.getPosition();
     document.getElementById("cursor-position").innerText = `Ln: ${position.lineNumber}, Col: ${position.column}`;
@@ -91,16 +96,16 @@ require(["vs/editor/editor.main"], function () {
       saveFile(currentFile);
       document.getElementById("project-status").innerText = `${currentFile} autosaved at ${new Date().toLocaleTimeString()}`;
     }
-  }, 30000); // Autosave every 30 seconds
+  }, 30000); 
 });
 
-// Function to detect language based on file extension
+
 function detectLanguage(fileName) {
   const fileExt = fileName.split(".").pop();
   return languageMap[fileExt] || "plaintext";
 }
 
-// Function to update breakpoints
+
 function updateBreakpointsList() {
   const breakpointsList = document.getElementById("breakpoints");
   breakpointsList.innerHTML = "";
@@ -111,11 +116,10 @@ function updateBreakpointsList() {
   });
 }
 
-// Create a new file
+
 function createFile() {
   const fileName = document.getElementById("new-file-name").value;
-  const language = detectLanguage(fileName); // Detect language by extension
-
+  const language = detectLanguage(fileName); 
   if (fileName) {
     files[fileName] = {
       language: language,
@@ -134,7 +138,7 @@ function createFile() {
   }
 }
 
-// Get file icon by language
+
 function getFileIcon(language) {
   switch (language) {
     case "javascript":
@@ -150,7 +154,7 @@ function getFileIcon(language) {
   }
 }
 
-// Open a file
+
 function openFile(fileName) {
   currentFile = fileName;
   const file = files[fileName];
@@ -161,16 +165,16 @@ function openFile(fileName) {
   document.getElementById("file-open-indicator").innerText = `${fileName} is open`;
 }
 
-// Delete a file
+
 function deleteFile(fileName) {
   if (confirm(`Are you sure you want to delete ${fileName}?`)) {
-    delete files[fileName]; // Remove file from memory
-    document.getElementById("file-list").innerHTML = ""; // Clear the list
+    delete files[fileName];
+    document.getElementById("file-list").innerHTML = "";
     Object.keys(files).forEach((file) => {
-      createFileElement(file); // Recreate the file list
+      createFileElement(file); 
     });
-    if (currentFile === fileName) {
-      editor.setValue(""); // Clear editor if the open file is deleted
+    if (currentFile === fileName) { 
+      editor.setValue(""); 
       document.getElementById("file-open-indicator").innerText = "No file opened";
     }
   }
@@ -188,13 +192,11 @@ function createFileElement(fileName) {
   fileList.appendChild(li);
 }
 
-// Run the code
 async function runCode() {
   const code = editor.getValue();
   const language = detectLanguage(currentFile);
   const terminal = document.getElementById("terminal");
 
-  // Clear the terminal before running new code
   terminal.innerHTML += `<p>Running code...</p>`;
 
   try {
@@ -210,8 +212,6 @@ async function runCode() {
     });
 
     const result = await response.json();
-
-    // Ensure line breaks are displayed correctly by converting \n to <br>
     const formattedOutput = result.output.replace(/\n/g, "<br>");
     terminal.innerHTML += `<p>${formattedOutput}</p>`;
   } catch (error) {
@@ -219,82 +219,49 @@ async function runCode() {
   }
 }
 
-// Save the file
-function saveFile(fileName) {
-  const file = files[fileName];
-  file.content = editor.getValue();
-  document.getElementById("project-status").innerText = `${fileName} saved`;
-}
+// Handle terminal command input
+document.getElementById("terminal-input").addEventListener("keypress", function (e) {
+  if (e.key === "Enter") {
+    const userCommand = e.target.value.trim();
+    e.target.value = ""; 
 
-// Toggle the sidebar visibility
-function toggleSidebar() {
-  const sidebar = document.querySelector(".sidebar");
-  sidebar.classList.toggle("sidebar-collapsed");
-}
-
-// Start debugging
-function debugCode() {
-  const code = editor.getValue().split("\n");
-  debugIndex = 0;
-  stepThroughCode(code);
-}
-
-// Step through the code
-function stepThrough() {
-  const code = editor.getValue().split("\n");
-  if (debugIndex < code.length) {
-    stepThroughCode(code);
-  } else {
-    document.getElementById("terminal").innerHTML += `<p>End of code</p>`;
+    handleTerminalCommand(userCommand);
   }
-}
-
-// Execute a line of code
-function executeLine(line) {
-  try {
-    eval(line);
-    document.getElementById("terminal").innerHTML += `<p>Executed: ${line}</p>`;
-  } catch (error) {
-    document.getElementById("terminal").innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
-  }
-}
-
-// Toggle terminal visibility
-function toggleTerminal() {
-  const terminal = document.getElementById("terminal");
-  if (terminal.style.display === "none") {
-    terminal.style.display = "block";
-  } else {
-    terminal.style.display = "none";
-  }
-}
-
-// Toggle Live Preview
-function toggleLivePreview() {
-  livePreviewEnabled = !livePreviewEnabled;
-  document.getElementById("livePreviewStatus").innerText = livePreviewEnabled
-    ? "Live Preview ON"
-    : "Live Preview OFF";
-  if (livePreviewEnabled) {
-    updateLivePreview();
-  }
-}
-
-// Event listener for 'Go to Live Preview  Area' button
-document.getElementById("livePreviewButton").addEventListener("click", function () {
-  window.location.href = "#live-preview";
 });
 
-// Update Live Preview area
-function updateLivePreview() {
-  const code = editor.getValue();
-  const livePreviewIframe = document.getElementById("livePreviewIframe");
-  const blob = new Blob([code], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  livePreviewIframe.src = url;
+// Process terminal commands like 'clear', 'npm install', etc.
+async function handleTerminalCommand(command) {
+  const terminal = document.getElementById("terminal");
+
+  if (command === "clear") {
+    terminal.innerHTML = ""; // Clear terminal
+  } else if (command.startsWith("npm install")) {
+    terminal.innerHTML += `<p>Installing dependencies...</p>`;
+    await mockInstallDependencies();
+  } else if (command.startsWith("input")) {
+    const inputPrompt = command.match(/input\s+"([^"]+)"/)[1];
+    await handleInput(inputPrompt);
+  } else {
+    terminal.innerHTML += `<p>Unknown command: ${command}</p>`;
+  }
 }
 
-// Terminate script (for security or other purposes)
-function terminateScript() {
-  document.getElementById("terminal").innerHTML += `<p style="color: red;">Execution Terminated</p>`;
+async function mockInstallDependencies() {
+  const terminal = document.getElementById("terminal");
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      terminal.innerHTML += `<p>Dependencies installed successfully!</p>`;
+      resolve();
+    }, 2000); 
+  });
+}
+
+async function handleInput(promptText) {
+  const terminal = document.getElementById("terminal");
+
+  return new Promise((resolve) => {
+    const userInput = prompt(promptText);
+    terminal.innerHTML += `<p>User input: ${userInput}</p>`;
+    resolve(userInput);
+  });
 }
